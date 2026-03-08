@@ -26,3 +26,13 @@ Phase 1 MVP
 - Cue configuration
 - Preset saving
 - Video preview
+
+
+## Instructions for local development:
+
+### Backend server setup:
+
+python3 -m venv .venv
+source .venv/bin/activate
+pip3 install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
