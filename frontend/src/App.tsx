@@ -1,35 +1,67 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import { deletePreset, fetchPresets } from "./api/presets";
+import CueForm from "./components/CueForm";
+import PresetList from "./components/PresetList";
+import type { CreatePresetPayload, Preset } from "./types/preset";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [presets, setPresets] = useState<Preset[]>([]);
+  const [activeCue, setActiveCue] = useState<CreatePresetPayload>({
+    track_name: "",
+    start_time_ms: 30000,
+    duration_ms: 15000,
+    countdown_seconds: 3,
+  });
+
+  async function loadPresets() {
+    const data = await fetchPresets();
+    setPresets(data);
+  }
+
+  async function handleDeletePreset(id: number) {
+    await deletePreset(id);
+    await loadPresets();
+  }
+
+  function handleApplyPreset(preset: Preset) {
+    setActiveCue({
+      track_name: preset.track_name,
+      start_time_ms: preset.start_time_ms,
+      duration_ms: preset.duration_ms,
+      countdown_seconds: preset.countdown_seconds,
+    });
+  }
+
+  useEffect(() => {
+    loadPresets();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div style={{ padding: 24, fontFamily: "Arial, sans-serif" }}>
+      <h1>Content Creator Camera Webapp</h1>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 24,
+          alignItems: "start",
+        }}
+      >
+        <CueForm onPresetSaved={loadPresets} onCueChange={setActiveCue} />
+        <PresetList
+          presets={presets}
+          onApplyPreset={handleApplyPreset}
+          onDeletePreset={handleDeletePreset}
+        />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+
+      <div style={{ marginTop: 24 }}>
+        <h2>Active Cue</h2>
+        <pre>{JSON.stringify(activeCue, null, 2)}</pre>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
