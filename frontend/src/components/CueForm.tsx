@@ -1,49 +1,32 @@
-import { useState } from "react";
 import { createPreset } from "../api/presets";
 import type { CreatePresetPayload } from "../types/preset";
 
 type CueFormProps = {
-  onPresetSaved: () => void;
+  cue: CreatePresetPayload;
   onCueChange: (cue: CreatePresetPayload) => void;
-};
-
-const initialCue: CreatePresetPayload = {
-  track_name: "",
-  start_time_ms: 30000,
-  duration_ms: 15000,
-  countdown_seconds: 3,
+  onPresetSaved: () => void;
 };
 
 export default function CueForm({
-  onPresetSaved,
+  cue,
   onCueChange,
+  onPresetSaved,
 }: CueFormProps) {
-  const [cue, setCue] = useState<CreatePresetPayload>(initialCue);
-  const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
+  async function handleSavePreset() {
+    try {
+      await createPreset(cue);
+      onPresetSaved();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to save preset");
+    }
+  }
 
   function updateField<K extends keyof CreatePresetPayload>(
     key: K,
     value: CreatePresetPayload[K]
   ) {
-    const updatedCue = { ...cue, [key]: value };
-    setCue(updatedCue);
-    onCueChange(updatedCue);
-  }
-
-  async function handleSavePreset() {
-    try {
-      setSaving(true);
-      setMessage("");
-      await createPreset(cue);
-      setMessage("Preset saved");
-      onPresetSaved();
-    } catch (error) {
-      console.error(error);
-      setMessage("Failed to save preset");
-    } finally {
-      setSaving(false);
-    }
+    onCueChange({ ...cue, [key]: value });
   }
 
   return (
@@ -91,11 +74,7 @@ export default function CueForm({
         />
       </div>
 
-      <button onClick={handleSavePreset} disabled={saving}>
-        {saving ? "Saving..." : "Save Preset"}
-      </button>
-
-      {message && <p>{message}</p>}
+      <button onClick={handleSavePreset}>Save Preset</button>
     </div>
   );
 }

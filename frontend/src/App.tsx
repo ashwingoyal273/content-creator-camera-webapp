@@ -5,14 +5,16 @@ import CueForm from "./components/CueForm";
 import PresetList from "./components/PresetList";
 import type { CreatePresetPayload, Preset } from "./types/preset";
 
+const initialCue: CreatePresetPayload = {
+  track_name: "",
+  start_time_ms: 30000,
+  duration_ms: 15000,
+  countdown_seconds: 3,
+};
+
 function App() {
   const [presets, setPresets] = useState<Preset[]>([]);
-  const [activeCue, setActiveCue] = useState<CreatePresetPayload>({
-    track_name: "",
-    start_time_ms: 30000,
-    duration_ms: 15000,
-    countdown_seconds: 3,
-  });
+  const [activeCue, setActiveCue] = useState<CreatePresetPayload>(initialCue);
 
   async function loadPresets() {
     const data = await fetchPresets();
@@ -49,7 +51,11 @@ function App() {
           alignItems: "start",
         }}
       >
-        <CueForm onPresetSaved={loadPresets} onCueChange={setActiveCue} />
+        <CueForm
+          cue={activeCue}
+          onCueChange={setActiveCue}
+          onPresetSaved={loadPresets}
+        />
         <PresetList
           presets={presets}
           onApplyPreset={handleApplyPreset}
