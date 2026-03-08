@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { deletePreset, fetchPresets } from "./api/presets";
+import CameraRecorder from "./components/CameraRecorder";
 import CueForm from "./components/CueForm";
 import PresetList from "./components/PresetList";
 import type { CreatePresetPayload, Preset } from "./types/preset";
@@ -54,6 +55,10 @@ function App() {
           onApplyPreset={handleApplyPreset}
           onDeletePreset={handleDeletePreset}
         />
+      </div>
+
+      <div style={{ marginTop: 24 }}>
+        <CameraRecorder cue={activeCue} />
       </div>
 
       <div style={{ marginTop: 24 }}>
